@@ -6,7 +6,7 @@ struct SnailfishNumber {
     depths: Vec<u16>,
 }
 
-pub fn part_1(input: &str) -> () {
+pub fn part_1(input: &str) -> u16 {
 
     let mut result: SnailfishNumber = SnailfishNumber{
         values: vec![],
@@ -32,12 +32,10 @@ pub fn part_1(input: &str) -> () {
         }
     }
 
-    let magnitude: u16 = compute_magnitude(&mut result);
-    println!("{magnitude}");
-
+    compute_magnitude(&mut result)
 }
 
-pub fn part_2(input: &str) -> () {
+pub fn part_2(input: &str) -> u16 {
 
     let mut numbers: Vec<SnailfishNumber> = vec![];
 
@@ -71,7 +69,7 @@ pub fn part_2(input: &str) -> () {
         }
     }
 
-    println!("{largest}");
+    largest
 }
 
 

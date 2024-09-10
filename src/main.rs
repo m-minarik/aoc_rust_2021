@@ -1,11 +1,15 @@
-use std::fs;
+mod benchmark;
 
-// mod d16;
-// mod d17;
-mod d18;
+mod day_16;
+mod day_18;
+mod day_19;
+
+use crate::benchmark::{benchmark_run, print_day, print_header};
 
 fn main() {
-    let input: String = fs::read_to_string("data/d18.test").unwrap();
-    d18::part_1(&input);
-    d18::part_2(&input);
+    benchmark_all!(
+        day_16,
+        day_18,
+        day_19
+    );
 }

@@ -1,14 +1,29 @@
-use std::fs;
 use std::cmp::{min, max};
 
+pub fn part_1(input: &str) -> usize {
+    let bin_str: String = hex_to_binary(&input);
+    let packet: Packet = parse_packet(&bin_str).0;
+    sum_versions(&packet)
+}
+
+pub fn part_2(input: &str) -> usize {
+    let bin_str: String = hex_to_binary(&input);
+    let packet: Packet = parse_packet(&bin_str).0;
+
+    evaluate(&packet)
+}
+
+
 #[derive(Debug)]
+#[allow(dead_code)]
 struct LiteralPacket {
     version: u8,
     type_id: u8,
-    value: u128,
+    value: usize,
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct OperatorPacket {
     version: u8,
     type_id: u8,
@@ -76,7 +91,7 @@ fn parse_packet(s: &str) -> (Packet, u16) {
             } 
         }
 
-        let value: u128 = u128::from_str_radix(&string_value, 2).unwrap();
+        let value: usize = usize::from_str_radix(&string_value, 2).unwrap();
 
         return (Packet::Literal(LiteralPacket{version, type_id, value}), i as u16);
 
@@ -121,24 +136,24 @@ fn parse_packet(s: &str) -> (Packet, u16) {
 
 }
 
-fn sum_versions(packet: &Packet) -> u128 {
+fn sum_versions(packet: &Packet) -> usize {
     match packet {
-        Packet::Literal(p) => p.version as u128,
+        Packet::Literal(p) => p.version as usize,
         Packet::Operator(p) => {
                 p
                 .subpackets
                 .iter()
                 .fold(
-                    p.version as u128, 
+                    p.version as usize, 
                     |acc, x| acc + sum_versions(x)
                 )
         }
     }
 }
 
-fn evaluate(packet: &Packet) -> u128 {
+fn evaluate(packet: &Packet) -> usize {
     match packet {
-        Packet::Literal(p) => p.value as u128,
+        Packet::Literal(p) => p.value as usize,
         Packet::Operator(p) => {
             if p.type_id == 0 {
                 // 0 - sum
@@ -148,35 +163,22 @@ fn evaluate(packet: &Packet) -> u128 {
                 p.subpackets.iter().fold(1, |acc, x| acc * evaluate(x))
             } else if p.type_id == 2 {
                 // 2 - minimum
-                p.subpackets.iter().fold(u128::MAX, |acc, x| min(acc, evaluate(x)))
+                p.subpackets.iter().fold(usize::MAX, |acc, x| min(acc, evaluate(x)))
             } else if p.type_id == 3 {
                 // 3 - maximum
                 p.subpackets.iter().fold(0, |acc, x| max(acc, evaluate(x)))
             } else if p.type_id == 5 {
                 // 5 - greater than
-                (evaluate(&p.subpackets[0]) > evaluate(&p.subpackets[1])) as u128
+                (evaluate(&p.subpackets[0]) > evaluate(&p.subpackets[1])) as usize
             } else if p.type_id == 6 {
                 // 6 - less than
-                (evaluate(&p.subpackets[0]) < evaluate(&p.subpackets[1])) as u128
+                (evaluate(&p.subpackets[0]) < evaluate(&p.subpackets[1])) as usize
             } else if p.type_id == 7 {
                 // 7 - equal
-                (evaluate(&p.subpackets[0]) == evaluate(&p.subpackets[1])) as u128
+                (evaluate(&p.subpackets[0]) == evaluate(&p.subpackets[1])) as usize
             } else {
                 0
             }
         }
     }
-}
-
-pub fn run(){
-    let hex_str: String = fs::read_to_string("data/d16.test").unwrap();
-    let bin_str: String = hex_to_binary(&hex_str);
-    let packet: Packet = parse_packet(&bin_str).0;
-    println!("{packet:#?}");
-
-    let p1_res: u128 = sum_versions(&packet);
-    println!("P1: {p1_res}");
-    
-    let p2_res: u128 = evaluate(&packet);
-    println!("P2: {p2_res}");
 }
